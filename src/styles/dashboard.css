@@ -3,10 +3,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
+  background-color: #f0f2f5;
 }
 
 .dashboard-card {
-  width: 100%;
-  max-width: 500px;
+  border-radius: 1rem;
+  transition: transform 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  cursor: pointer;
 }

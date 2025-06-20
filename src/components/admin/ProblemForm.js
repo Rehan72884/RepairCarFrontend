@@ -1,19 +1,39 @@
-const ProblemForm = ({ form, setForm, handleSubmit }) => {
+import React from 'react';
+
+const ProblemForm = ({ form, setForm, handleSubmit, cars = [], editing }) => {
   return (
     <form onSubmit={handleSubmit} className="mb-4">
+      <select
+        className="form-control mb-2"
+        value={form.car_id}
+        onChange={(e) => setForm({ ...form, car_id: e.target.value })}
+        required
+      >
+        <option value="">Select Car</option>
+        {cars.map((car) => (
+          <option key={car.id} value={car.id}>
+            {car.company} {car.model} ({car.year})
+          </option>
+        ))}
+      </select>
+
       <input
         className="form-control mb-2"
-        placeholder="Problem Title"
+        placeholder="Title"
         value={form.title}
         onChange={(e) => setForm({ ...form, title: e.target.value })}
+        required
       />
       <textarea
         className="form-control mb-2"
-        placeholder="Problem Description"
+        placeholder="Description"
         value={form.description}
         onChange={(e) => setForm({ ...form, description: e.target.value })}
-      ></textarea>
-      <button className="btn btn-primary">Submit</button>
+        required
+      />
+      <button className="btn btn-primary">
+        {editing ? 'Update Problem' : 'Add Problem'}
+      </button>
     </form>
   );
 };

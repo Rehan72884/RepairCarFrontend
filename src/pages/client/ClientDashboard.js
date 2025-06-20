@@ -1,129 +1,147 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/dashboard.css'; // create this file for styling
+import axios from '../../api/axios';
+import {
+  Container, Row, Col, Card, CardBody, CardTitle, Button, Alert, ListGroup, ListGroupItem
+} from 'reactstrap';
 
 const ClientDashboard = () => {
+  const [cars, setCars] = useState([]);
+  const [myCars, setMyCars] = useState([]);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [problems, setProblems] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [companies, setCompanies] = useState([]);
-  const [models, setModels] = useState([]);
-  const [years, setYears] = useState([]);
-
-  const [selectedCompany, setSelectedCompany] = useState('');
-  const [selectedModel, setSelectedModel] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
-
-  // Dummy data for now
   useEffect(() => {
-    setCompanies(['Toyota', 'Honda', 'Ford']);
-    setModels(['Corolla', 'Civic', 'Mustang']);
-    setYears(['2022', '2023', '2024']);
+    fetchCars();
+    fetchMyCars();
   }, []);
 
-  const handleAddToMyCars = () => {
-    if (selectedCompany && selectedModel && selectedYear) {
-      const newCar = {
-        company: selectedCompany,
-        model: selectedModel,
-        year: selectedYear,
-      };
-      const storedCars = JSON.parse(localStorage.getItem('myCars')) || [];
-      storedCars.push(newCar);
-      localStorage.setItem('myCars', JSON.stringify(storedCars));
-      alert('Car added successfully!');
-    } else {
-      alert('Please select all fields.');
-    }
-  };
-
-  const goToNext = () => {
-    if (selectedCompany && selectedModel && selectedYear) {
-      navigate('/next-step', {
-        state: {
-          company: selectedCompany,
-          model: selectedModel,
-          year: selectedYear,
-        },
+  const fetchCars = () => {
+    setLoading(true);
+    axios.get('/api/cars/list', { headers: authHeader() })
+      .then(res => {
+        setCars(res.data.data || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Failed to load cars.');
+        setLoading(false);
       });
-    } else {
-      alert('Please complete all selections.');
-    }
   };
 
-  const goToMyCars = () => {
-    navigate('/my-cars');
+  const fetchMyCars = () => {
+    axios.get('/api/client-cars/list', { headers: authHeader() })
+      .then(res => {
+        setMyCars(res.data.data || []);
+      })
+      .catch(() => {
+        setError('Failed to load your cars.');
+      });
+  };
+
+  const handleAddToMyCars = (carId) => {
+    axios.post('/api/client-cars/store', { car_id: carId }, { headers: authHeader() })
+      .then(() => {
+        setSuccess('Car added to your list!');
+        fetchMyCars();
+        setTimeout(() => setSuccess(''), 3000);
+      })
+      .catch(() => {
+        setError('Failed to add car.');
+        setTimeout(() => setError(''), 3000);
+      });
+  };
+
+  const handleRemove = (carId) => {
+    axios.delete(`/api/client-cars/delete/${carId}`, { headers: authHeader() })
+      .then(() => {
+        setSuccess('Car removed successfully.');
+        setMyCars(prev => prev.filter(car => car.id !== carId));
+        setTimeout(() => setSuccess(''), 3000);
+      })
+      .catch(() => {
+        setError('Failed to remove the car.');
+        setTimeout(() => setError(''), 3000);
+      });
+  };
+
+  const fetchProblems = (carId) => {
+    if (problems[carId]) return; // already fetched
+    axios.get(`/api/cars/${carId}/problems`, { headers: authHeader() })
+      .then(res => {
+        setProblems(prev => ({ ...prev, [carId]: res.data.data || [] }));
+      })
+      .catch(() => {
+        setError('Failed to load problems.');
+      });
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="card p-4 shadow-lg dashboard-card">
-        <h3 className="text-center mb-4">Select Your Vehicle</h3>
+    <Container className="py-4">
+      <h2 className="text-primary mb-4">Available Cars</h2>
 
-        <div className="mb-3">
-          <label>Company</label>
-          <select
-            className="form-control"
-            value={selectedCompany}
-            onChange={(e) => setSelectedCompany(e.target.value)}
-          >
-            <option value="">Select Company</option>
-            {companies.map((company, index) => (
-              <option key={index} value={company}>
-                {company}
-              </option>
-            ))}
-          </select>
-        </div>
+      {error && <Alert color="danger">{error}</Alert>}
+      {success && <Alert color="success">{success}</Alert>}
 
-        <div className="mb-3">
-          <label>Model</label>
-          <select
-            className="form-control"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-          >
-            <option value="">Select Model</option>
-            {models.map((model, index) => (
-              <option key={index} value={model}>
-                {model}
-              </option>
-            ))}
-          </select>
-        </div>
+      <Row>
+        {cars.map(car => (
+          <Col md="4" key={car.id} className="mb-4">
+            <Card className="shadow-sm">
+              <CardBody>
+                <CardTitle tag="h5">{car.company} - {car.model}</CardTitle>
+                <p><strong>Year:</strong> {car.year}</p>
+                <Button color="success" onClick={() => handleAddToMyCars(car.id)}>
+                  Add to My Cars
+                </Button>
+              </CardBody>
+            </Card>
+          </Col>
+        ))}
+      </Row>
 
-        <div className="mb-3">
-          <label>Year</label>
-          <select
-            className="form-control"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-          >
-            <option value="">Select Year</option>
-            {years.map((year, index) => (
-              <option key={index} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
+      <hr className="my-5" />
 
-        <div className="d-flex justify-content-between mt-4">
-          <button className="btn btn-success" onClick={handleAddToMyCars}>
-            Add to My Car
-          </button>
-          <button className="btn btn-primary" onClick={goToNext}>
-            Next
-          </button>
-        </div>
+      <h2 className="text-primary mb-4">My Cars</h2>
 
-        <div className="text-center mt-3">
-          <button className="btn btn-outline-secondary w-100" onClick={goToMyCars}>
-            My Cars
-          </button>
-        </div>
-      </div>
-    </div>
+      <Row>
+        {myCars.map(car => (
+          <Col md="6" key={car.id} className="mb-4">
+            <Card className="shadow-sm">
+              <CardBody>
+                <CardTitle tag="h5">{car.company} - {car.model}</CardTitle>
+                <p><strong>Year:</strong> {car.year}</p>
+
+                <Button color="danger" size="sm" onClick={() => handleRemove(car.id)} className="me-2">
+                  Remove
+                </Button>
+
+                <Button color="info" size="sm" onClick={() => navigate(`/client/car/${car.id}/problems`)}>
+                  View Problems
+                </Button>
+
+
+                {problems[car.id] && problems[car.id].length > 0 && (
+                  <ListGroup className="mt-3">
+                    <ListGroupItem active>Problems</ListGroupItem>
+                    {problems[car.id].map(problem => (
+                      <ListGroupItem key={problem.id}>{problem.name}</ListGroupItem>
+                    ))}
+                  </ListGroup>
+                )}
+              </CardBody>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </Container>
   );
 };
+
+const authHeader = () => ({
+  Authorization: `Bearer ${localStorage.getItem('token')}`
+});
 
 export default ClientDashboard;

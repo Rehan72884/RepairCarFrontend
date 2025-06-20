@@ -5,8 +5,8 @@ import CarForm from '../../components/admin/CarForm';
 const CarManagement = () => {
   const [cars, setCars] = useState([]);
   const [form, setForm] = useState({ company: '', model: '', year: '' });
-  const [editingCarId, setEditingCarId] = useState(null); // Track which car is being edited
-
+  const [editingCarId, setEditingCarId] = useState(null); 
+  const [successMessage, setSuccessMessage] = useState('');
   useEffect(() => {
     fetchCars();
   }, []);
@@ -18,23 +18,38 @@ const CarManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    try{
     if (editingCarId) {
-      // Update existing car
       await axios.post(`api/cars/update/${editingCarId}`, form);
       setEditingCarId(null);
+      setSuccessMessage('Car updated successfully!');
     } else {
       // Create new car
       await axios.post('api/cars/store', form);
+      setSuccessMessage('Car added successfully!');
     }
 
     fetchCars();
     setForm({ company: '', model: '', year: '' });
+
+    setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Error saving expert:', error);
+      alert('Error saving expert');
+    }
   };
 
   const handleDelete = async (id) => {
+    try {
     await axios.delete(`api/cars/delete/${id}`);
+    setSuccessMessage('Car deleted successfully!');
     fetchCars();
+
+    setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Error deleting car:', error);
+      alert('Error deleting car');
+    }
   };
 
   const handleEdit = (car) => {
@@ -45,6 +60,11 @@ const CarManagement = () => {
   return (
     <div className="container mt-4">
       <h3>Car Management</h3>
+      {successMessage && (
+      <div className="alert alert-success" role="alert">
+        {successMessage}
+      </div>
+    )}
 
       <CarForm
         form={form}

@@ -6,6 +6,7 @@ const ExpertManagement = () => {
   const [experts, setExperts] = useState([]);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [editingId, setEditingId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     fetchExperts();
@@ -26,12 +27,17 @@ const ExpertManagement = () => {
     try {
       if (editingId) {
         await axios.post(`/api/experts/update/${editingId}`, form);
+        setSuccessMessage('Expert updated successfully!');
       } else {
         await axios.post('/api/experts/store', form);
+        setSuccessMessage('Expert added successfully!');
       }
+
       fetchExperts();
       setForm({ name: '', email: '', password: '' });
       setEditingId(null);
+
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error saving expert:', error);
       alert('Error saving expert');
@@ -42,26 +48,33 @@ const ExpertManagement = () => {
     setForm({
       name: expert.name,
       email: expert.email,
-      password: '', // leave empty for updates
+      password: '',
     });
     setEditingId(expert.id);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this expert?')) {
-      try {
-        await axios.delete(`/api/experts/delete/${id}`);
-        fetchExperts();
-      } catch (error) {
-        console.error('Error deleting expert:', error);
-        alert('Error deleting expert');
-      }
+    try {
+      await axios.delete(`/api/experts/delete/${id}`);
+      setSuccessMessage('Expert deleted successfully!');
+      fetchExperts();
+
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Error deleting expert:', error);
+      alert('Error deleting expert');
     }
   };
 
   return (
     <div className="container mt-4">
       <h3>Expert Accounts</h3>
+
+      {successMessage && (
+        <div className="alert alert-success" role="alert">
+          {successMessage}
+        </div>
+      )}
 
       <ExpertForm
         form={form}
