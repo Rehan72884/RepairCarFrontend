@@ -1,12 +1,23 @@
 import React from 'react';
 
-const ProblemForm = ({ form, setForm, handleSubmit, cars = [], editing }) => {
+const ProblemForm = ({
+  form,
+  setForm,
+  handleSubmit,
+  selectedCarId,
+  setSelectedCarId,
+  cars = [],
+  editing
+}) => {
   return (
     <form onSubmit={handleSubmit} className="mb-4">
       <select
         className="form-control mb-2"
-        value={form.car_id}
-        onChange={(e) => setForm({ ...form, car_id: e.target.value })}
+        value={selectedCarId}
+        onChange={(e) => {
+          setSelectedCarId(e.target.value);
+          setForm({ ...form, car_id: e.target.value });
+        }}
         required
       >
         <option value="">Select Car</option>
@@ -31,7 +42,7 @@ const ProblemForm = ({ form, setForm, handleSubmit, cars = [], editing }) => {
         onChange={(e) => setForm({ ...form, description: e.target.value })}
         required
       />
-      <button className="btn btn-primary">
+      <button className="btn btn-primary" disabled={!selectedCarId}>
         {editing ? 'Update Problem' : 'Add Problem'}
       </button>
     </form>
