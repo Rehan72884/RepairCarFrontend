@@ -24,24 +24,29 @@ const Register = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+      e.preventDefault();
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      await axios.get("/sanctum/csrf-cookie")
-      const res = await axios.post("/api/auth/register", form)
-      setSuccess(true)
-      setTimeout(() => {
-        alert(res.data.message)
-      }, 1000)
-    } catch (err) {
-      console.error(err?.response?.data || err)
-      setError(err?.response?.data?.message || "Registration failed. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      try {
+        await axios.get("/sanctum/csrf-cookie");
+        const res = await axios.post("/api/auth/register", form);
+        setSuccess(true);
+
+        // Hide success after 3 seconds and refresh the page
+        setTimeout(() => {
+          setSuccess(false);
+          window.location.reload(); // refresh the page
+        }, 3000);
+
+      } catch (err) {
+        console.error(err?.response?.data || err);
+        setError(err?.response?.data?.message || "Registration failed. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+  };
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
