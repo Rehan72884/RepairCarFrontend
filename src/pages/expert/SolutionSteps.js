@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Card,
@@ -26,6 +27,7 @@ const SolutionSteps = () => {
   const [success, setSuccess] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ description: '', order: '', image: null });
+  const navigate = useNavigate();
 
   // Fetch steps
   useEffect(() => {
@@ -133,7 +135,8 @@ const SolutionSteps = () => {
 
   return (
     <Container className="py-5">
-      <h2 className="text-primary mb-4">Steps for the Solution</h2>
+      <Button color="secondary" onClick={() => navigate(-1)}>⬅ Back</Button>
+      <h2 className="text-primary mb-4 text-center">Steps for the Solution</h2>
       {error && <Alert color="danger">{error}</Alert>}
       {success && <Alert color="success">{success}</Alert>}
 

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axios';
 import CarForm from '../../components/admin/CarForm';
+import {useNavigate} from 'react-router-dom';
+import { Button } from 'reactstrap';
 
 const CarManagement = () => {
   const [cars, setCars] = useState([]);
   const [form, setForm] = useState({ company: '', model: '', year: '' });
   const [editingCarId, setEditingCarId] = useState(null); 
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchCars();
   }, []);
@@ -59,7 +63,8 @@ const CarManagement = () => {
 
   return (
     <div className="container mt-4">
-      <h3>Car Management</h3>
+      <Button color="secondary" onClick={() => navigate(-1)}>⬅ Back</Button>
+      <h3 className="mb-4 text-center">Car Management</h3>
       {successMessage && (
       <div className="alert alert-success" role="alert">
         {successMessage}

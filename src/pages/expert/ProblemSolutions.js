@@ -132,7 +132,8 @@ const ProblemSolutions = () => {
 
   return (
     <Container className="py-5">
-      <h2 className="text-center mb-4 text-primary">Solutions for Problem #{problemId}</h2>
+      <Button color="secondary" onClick={() => navigate(-1)}>⬅ Back</Button>
+      <h2 className="text-center mb-4 text-primary">Solutions for Problem</h2>
 
       {error && <Alert color="danger">{error}</Alert>}
       {success && <Alert color="success">{success}</Alert>}

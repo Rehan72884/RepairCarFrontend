@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axios';
 import ExpertForm from '../../components/expert/ExpertForm';
+import { useNavigate } from 'react-router-dom';
+import { Button } from 'reactstrap';
 
 const ExpertManagement = () => {
   const [experts, setExperts] = useState([]);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [editingId, setEditingId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchExperts();
@@ -68,7 +71,8 @@ const ExpertManagement = () => {
 
   return (
     <div className="container mt-4">
-      <h3>Expert Accounts</h3>
+      <Button color="secondary" onClick={() => navigate(-1)}>⬅ Back</Button>
+      <h3 className="mb-4 text-center">Expert Accounts</h3>
 
       {successMessage && (
         <div className="alert alert-success" role="alert">
