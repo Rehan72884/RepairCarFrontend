@@ -6,13 +6,16 @@ import { Button } from 'reactstrap';
 
 const ExpertManagement = () => {
   const [experts, setExperts] = useState([]);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', company: '' });
   const [editingId, setEditingId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [companies, setCompanies] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchExperts();
+    fetchCompanies();
   }, []);
 
   const fetchExperts = async () => {
@@ -22,6 +25,16 @@ const ExpertManagement = () => {
     } catch (error) {
       console.error('Error fetching experts:', error);
       alert('Failed to load experts');
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const res = await axios.get('/api/experts/companies');
+      setCompanies(res.data.data);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      alert('Failed to load companies');
     }
   };
 
@@ -52,6 +65,7 @@ const ExpertManagement = () => {
       name: expert.name,
       email: expert.email,
       password: '',
+      company: expert.company || '',
     });
     setEditingId(expert.id);
   };
@@ -85,6 +99,7 @@ const ExpertManagement = () => {
         setForm={setForm}
         handleSubmit={handleSubmit}
         buttonLabel={editingId ? 'Update Expert' : 'Add Expert'}
+        companies={companies}
       />
 
       <ul className="list-group mt-4">
