@@ -55,7 +55,8 @@ const ProblemSolutions = () => {
       setSuccess('Solution added successfully!');
     }).catch(err => {
       console.error(err);
-      setError('Failed to add solution.');
+      const msg = err.response?.data?.message || 'Failed to add solution.';
+      setError(msg);
     });
   };
 
@@ -92,7 +93,8 @@ const ProblemSolutions = () => {
       setSuccess('Solution updated successfully!');
     }).catch(err => {
       console.error(err);
-      setError('Failed to update solution.');
+      const msg = err.response?.data?.message || 'Failed to update solution.';
+      setError(msg);
     });
   };
 
