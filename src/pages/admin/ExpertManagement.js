@@ -31,6 +31,7 @@ const ExpertManagement = () => {
   const fetchCompanies = async () => {
     try {
       const res = await axios.get('/api/experts/companies');
+       console.log("Loaded companies:", res.data.data);
       setCompanies(res.data.data);
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -50,12 +51,13 @@ const ExpertManagement = () => {
       }
 
       fetchExperts();
-      setForm({ name: '', email: '', password: '' });
+      setForm({ name: '', email: '', password: '', company: '' });
       setEditingId(null);
 
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error saving expert:', error);
+      console.log('Validation Errors:', error.response?.data?.errors);
       alert('Error saving expert');
     }
   };
@@ -105,7 +107,10 @@ const ExpertManagement = () => {
       <ul className="list-group mt-4">
         {experts.map((expert) => (
           <li key={expert.id} className="list-group-item d-flex justify-content-between align-items-center">
-            {expert.name} ({expert.email})
+            {expert.name} ({expert.email}) <br />
+            {expert.company && (
+      <small>Company: {expert.company}</small>
+    )}
             <div>
               <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(expert)}>Edit</button>
               <button className="btn btn-sm btn-danger" onClick={() => handleDelete(expert.id)}>Delete</button>

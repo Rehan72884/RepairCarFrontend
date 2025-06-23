@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ExpertForm = ({ form, setForm, handleSubmit, buttonLabel }) => {
+const ExpertForm = ({ form, setForm, handleSubmit, buttonLabel, companies = [] }) => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -43,6 +43,23 @@ const ExpertForm = ({ form, setForm, handleSubmit, buttonLabel }) => {
           placeholder={isUpdating ? 'Leave blank to keep current' : '********'}
           required={!isUpdating}
         />
+      </div>
+
+      <div className="mb-3">
+        <label>Company</label>
+        <select
+          name="company"
+          className="form-control"
+          value={form.company || ''}
+          onChange={handleChange}
+        >
+          <option value="">-- Select Company --</option>
+          {companies.map((company, index) => (
+            <option key={company || index} value={company}>
+              {company}
+            </option>
+          ))}
+        </select>
       </div>
 
       <button type="submit" className="btn btn-primary w-100">
