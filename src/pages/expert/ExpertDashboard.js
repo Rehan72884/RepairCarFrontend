@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
 import { Card, CardBody, CardTitle, Button, Row, Col } from 'reactstrap';
+import { FaBell } from 'react-icons/fa';
 
 const ExpertDashboard = () => {
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState(null);
   const [problems, setProblems] = useState([]);
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     axios
@@ -25,10 +28,71 @@ const ExpertDashboard = () => {
     }
   }, [selectedCar]);
 
+  useEffect(() => {
+  axios.get('/api/notifications/list', { headers: authHeader() })
+    .then(res => setNotifications(res.data.notifications || []))
+    .catch(err => console.error(err));
+  }, []);
   return (
     <div style={styles.mainContainer}>
-      <h1 style={styles.title}>Expert Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+  <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowDropdown(!showDropdown)}>
+    <FaBell size={24} />
+    {notifications.length > 0 && (
+      <span style={{
+        position: 'absolute',
+        top: '-5px',
+        right: '-10px',
+        background: 'red',
+        color: 'white',
+        borderRadius: '50%',
+        padding: '2px 6px',
+        fontSize: '12px',
+      }}>
+        {notifications.length}
+      </span>
+    )}
+  </div>
+</div>
 
+{/* Notification Dropdown */}
+{showDropdown && (
+  <div style={{
+    position: 'absolute',
+    right: '30px',
+    top: '70px',
+    backgroundColor: 'white',
+    boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+    zIndex: 1000,
+    borderRadius: '6px',
+    padding: '10px',
+    width: '300px'
+  }}>
+    {notifications.length === 0 ? (
+      <p className="text-muted">No new notifications</p>
+    ) : (
+      notifications.map((notif, idx) => (
+        <div
+          key={idx}
+          onClick={() => {
+            navigate(`/expert/problems/${notif.data.problem_id}/solutions`);
+            setShowDropdown(false);
+          }}
+          style={{
+            padding: '10px',
+            borderBottom: '1px solid #eee',
+            cursor: 'pointer'
+          }}
+        >
+          <strong>{notif.data.title || 'New Problem Assigned'}</strong><br />
+          <small>{notif.data.message || 'Click to add solution'}</small>
+        </div>
+      ))
+    )}
+  </div>
+)}
+      <h1 style={styles.title}>Expert Dashboard</h1>
+      
       <Row className="mb-4">
         {cars.map((car) => (
           <Col md="4" sm="6" xs="12" key={car.id} className="mb-3">

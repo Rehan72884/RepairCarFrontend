@@ -14,6 +14,7 @@ import SolutionSteps from './pages/expert/SolutionSteps';
 import CarProblems from './pages/client/CarProblems';
 import ClientProblemSolutions from './pages/client/ClientProblemSolutions';
 import ClientSolutionSteps from './pages/client/ClientSolutionSteps';
+import ClientProblemRequests from './pages/admin/ClientProblemRequests';
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <Route path="/client/car/:id/problems" element={<CarProblems />} />
         <Route path="/client/problems/:problemId/solutions" element={<ClientProblemSolutions />} />
         <Route path="/client/solutions/:solutionId/steps" element={<ClientSolutionSteps />} />
+        <Route path="/admin/client-problems" element={<ClientProblemRequests />} />
         {/* Add other routes as needed */}
       </Routes>
     </Router>

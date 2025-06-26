@@ -10,6 +10,8 @@ const AdminDashboard = () => {
     { title: 'Manage Experts', icon: <FaUserTie size={30} />, path: '/admin/experts' },
     { title: 'Manage Cars', icon: <FaCar size={30} />, path: '/admin/cars' },
     { title: 'Manage Problems', icon: <FaExclamationTriangle size={30} />, path: '/admin/problems' },
+    { title: 'Client Problem Requests', icon: <FaExclamationTriangle size={30} />, path: '/admin/client-problems' },
+
   ];
 
   return (
