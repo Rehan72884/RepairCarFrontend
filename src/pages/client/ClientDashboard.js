@@ -1,3 +1,4 @@
+import ClientNotificationDropdown from "../../components/notification/ClientNotificationDropdown";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
@@ -98,6 +99,10 @@ const ClientDashboard = () => {
   };
 
   return (
+     <>
+     <div className="d-flex justify-content-end pe-4 pt-3">
+      <ClientNotificationDropdown />
+    </div>
     <Container className="py-4">
       <h2 className="text-primary mb-4">Available Cars</h2>
 
@@ -186,6 +191,7 @@ const ClientDashboard = () => {
         ))}
       </Row>
     </Container>
+    </>
   );
 };
 
