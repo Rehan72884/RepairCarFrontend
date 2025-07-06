@@ -73,7 +73,8 @@ const ClientDashboard = () => {
 
       setExperts(expertsRes.data.data || []);
       setAlreadySubscribed(subscribedRes.data.data || []);
-    } catch {
+    } catch (error) {
+      console.error("Error fetching experts or subscriptions:", error.response || error.message);
       setError("Failed to load expert list or subscriptions.");
     }
   };
