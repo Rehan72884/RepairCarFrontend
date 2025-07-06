@@ -13,9 +13,20 @@ import {
   Alert,
   ListGroup,
   ListGroupItem,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  FormGroup,
+  Label,
+  Input,
 } from "reactstrap";
 
 const ClientDashboard = () => {
+  const [experts, setExperts] = useState([]);
+  const [selectedExperts, setSelectedExperts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [alreadySubscribed, setAlreadySubscribed] = useState([]);
   const [cars, setCars] = useState([]);
   const [myCars, setMyCars] = useState([]);
   const [success, setSuccess] = useState("");
@@ -53,6 +64,19 @@ const ClientDashboard = () => {
         setError("Failed to load your cars.");
       });
   };
+  const fetchExperts = async () => {
+    try {
+      const [expertsRes, subscribedRes] = await Promise.all([
+        axios.get("/api/experts/list", { headers: authHeader() }),
+        axios.get("/api/users/my-subscriptions", { headers: authHeader() }),
+      ]);
+
+      setExperts(expertsRes.data.data || []);
+      setAlreadySubscribed(subscribedRes.data.data || []);
+    } catch {
+      setError("Failed to load expert list or subscriptions.");
+    }
+  };
 
   const handleAddToMyCars = (carId) => {
     axios
@@ -68,6 +92,25 @@ const ClientDashboard = () => {
       })
       .catch(() => {
         setError("Failed to add car.");
+        setTimeout(() => setError(""), 3000);
+      });
+  };
+
+  const handleExpertSubscription = () => {
+    axios
+      .post(
+        "/api/users/subscribe-expert",
+        { expert_ids: selectedExperts },
+        { headers: authHeader() }
+      )
+      .then((res) => {
+        setSuccess("Experts subscribed successfully.");
+        setShowModal(false);
+        setSelectedExperts([]);
+        setTimeout(() => setSuccess(""), 3000);
+      })
+      .catch(() => {
+        setError("Failed to subscribe experts.");
         setTimeout(() => setError(""), 3000);
       });
   };
@@ -100,6 +143,53 @@ const ClientDashboard = () => {
 
   return (
      <>
+     <Modal isOpen={showModal} toggle={() => setShowModal(!showModal)}>
+        <ModalHeader toggle={() => setShowModal(!showModal)}>
+          Subscribe to Experts
+        </ModalHeader>
+        <ModalBody>
+          {experts.map((expert) => {
+            const isAlreadySubscribed = alreadySubscribed.includes(expert.id);
+            return (
+              <FormGroup check key={expert.id}>
+                <Label
+                  check
+                  className={isAlreadySubscribed ? "text-muted" : ""}
+                >
+                  <Input
+                    type="checkbox"
+                    value={expert.id}
+                    checked={selectedExperts.includes(expert.id)}
+                    onChange={(e) => {
+                      const id = parseInt(e.target.value);
+                      setSelectedExperts((prev) =>
+                        e.target.checked
+                          ? [...prev, id]
+                          : prev.filter((x) => x !== id)
+                      );
+                    }}
+                    disabled={isAlreadySubscribed}
+                  />
+                  {expert.name} ({expert.company})
+                  {isAlreadySubscribed && " (Already Subscribed)"}
+                </Label>
+              </FormGroup>
+            );
+          })}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="success"
+            onClick={handleExpertSubscription}
+            disabled={selectedExperts.length === 0}
+          >
+            Save Subscription
+          </Button>
+          <Button color="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
      <div className="d-flex justify-content-end pe-4 pt-3">
       <ClientNotificationDropdown />
     </div>
@@ -189,6 +279,15 @@ const ClientDashboard = () => {
             </Card>
           </Col>
         ))}
+        <Button
+            color="primary"
+            onClick={() => {
+              setShowModal(true);
+              fetchExperts();
+            }}
+          >
+            Subscribe Experts
+          </Button>
       </Row>
     </Container>
     </>
