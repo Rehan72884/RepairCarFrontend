@@ -3,7 +3,7 @@ import axios from '../../api/axios';
 import ProblemForm from '../../components/admin/ProblemForm';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'reactstrap';
-
+import SolutionModal from '../../components/admin/SolutionModal';
 
 const ProblemManagement = () => {
   const [problems, setProblems] = useState([]);
@@ -16,7 +16,14 @@ const ProblemManagement = () => {
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState('');
   const [selectedCarId, setSelectedCarId] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProblemId, setSelectedProblemId] = useState(null);
   const navigate = useNavigate();
+
+  const openSolutionModal = (problemId) => {
+  setSelectedProblemId(problemId);
+  setModalOpen(true);
+};
 
   useEffect(() => {
     fetchCars();
@@ -106,6 +113,13 @@ const ProblemManagement = () => {
   };
 
   return (
+    <>
+    <SolutionModal
+  isOpen={modalOpen}
+  toggle={() => setModalOpen(false)}
+  problemId={selectedProblemId}
+/>
+    
     <div className="container mt-4">
        <Button color="secondary" onClick={() => navigate(-1)}>⬅ Back</Button>
       <h3 className="mb-4 text-center">Problem Management</h3>
@@ -140,6 +154,13 @@ const ProblemManagement = () => {
               {problem.title} ({problem.description})
               <div>
                 <button
+                  className="btn btn-info btn-sm me-2"
+                  onClick={() => openSolutionModal(problem.id)}
+                >
+                  Solutions
+                </button>
+
+                <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => handleEdit(problem)}
                 >
@@ -157,6 +178,7 @@ const ProblemManagement = () => {
         </ul>
       )}
     </div>
+    </>
   );
 };
 
