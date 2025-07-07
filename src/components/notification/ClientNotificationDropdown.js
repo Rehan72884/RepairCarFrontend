@@ -33,6 +33,7 @@ const ClientNotificationDropdown = () => {
       }, {
         headers: authHeader()
       });
+      // fetchNotifications();
     } catch (err) {
       console.error('Failed to mark notification as read:', err);
     }
