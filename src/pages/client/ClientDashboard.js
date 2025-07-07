@@ -2,6 +2,7 @@ import ClientNotificationDropdown from "../../components/notification/ClientNoti
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
+import { FaComments } from "react-icons/fa";
 import {
   Container,
   Row,
@@ -23,6 +24,9 @@ import {
 } from "reactstrap";
 
 const ClientDashboard = () => {
+  const [chatModal, setChatModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
   const [experts, setExperts] = useState([]);
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -78,6 +82,41 @@ const ClientDashboard = () => {
       setError("Failed to load expert list or subscriptions.");
     }
   };
+  const fetchChat = () => {
+    axios
+      .get("/api/messages", { headers: authHeader() })
+      .then((res) => {
+        setChatMessages(res.data || []);
+      })
+      .catch(() => {
+        setError("Failed to load messages.");
+      });
+  };
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+
+    // Find Admin from fetched users, or hardcode admin_id if known
+    const adminUser = JSON.parse(localStorage.getItem("admin_user")); // OR hardcode receiver_id
+
+    axios
+      .post(
+        "/api/messages/send",
+        {
+          receiver_id: adminUser?.id ?? 1, // replace with actual admin ID
+          message: newMessage.trim(),
+        },
+        { headers: authHeader() }
+      )
+      .then((res) => {
+        setNewMessage("");
+        setChatMessages((prev) => [...prev, res.data]);
+      })
+      .catch(() => {
+        setError("Failed to send message.");
+      });
+  };
+
 
   const handleAddToMyCars = (carId) => {
     axios
@@ -291,6 +330,50 @@ const ClientDashboard = () => {
           </Button>
       </Row>
     </Container>
+    <div className="position-fixed bottom-0 end-0 mt-3 me-4 zindex-tooltip">
+  <Button color="info" onClick={() => {
+    setChatModal(true);
+    fetchChat();
+  }}>
+    <FaComments className="me-2" />
+    Chat with Admin
+  </Button>
+</div>
+
+<Modal isOpen={chatModal} toggle={() => setChatModal(!chatModal)} size="lg">
+  <ModalHeader toggle={() => setChatModal(!chatModal)}>Chat with Admin</ModalHeader>
+  <ModalBody style={{ maxHeight: "400px", overflowY: "auto" }}>
+    {chatMessages.length === 0 ? (
+      <p>No messages yet.</p>
+    ) : (
+      <ul className="list-unstyled">
+        {chatMessages.map((msg) => (
+          <li
+            key={msg.id}
+            className={`mb-2 p-2 rounded ${msg.sender_id === getUserId() ? "bg-primary text-white text-end" : "bg-light text-start"}`}
+          >
+            <small>{msg.message}</small>
+            <br />
+            <small className="text-muted">{new Date(msg.created_at).toLocaleString()}</small>
+          </li>
+        ))}
+      </ul>
+    )}
+  </ModalBody>
+  <ModalFooter className="d-flex">
+    <Input
+      type="text"
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+      placeholder="Type your message..."
+      onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+    />
+    <Button color="primary" onClick={handleSendMessage}>
+      Send
+    </Button>
+  </ModalFooter>
+</Modal>
+
     </>
   );
 };
@@ -298,5 +381,5 @@ const ClientDashboard = () => {
 const authHeader = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
-
+const getUserId = () => parseInt(localStorage.getItem("user_id"));
 export default ClientDashboard;
