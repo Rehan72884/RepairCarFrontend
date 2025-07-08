@@ -91,7 +91,7 @@ const SolutionSteps = () => {
       {/* Feedback Section */}
       <Card>
         <CardBody>
-          <CardTitle tag="h5">Submit Your Feedback</CardTitle>
+          <CardTitle tag="h5">Submit Your Feedback for Solution</CardTitle>
 
           <FormGroup>
             <Label>Did you like the solution?</Label><br />
@@ -135,7 +135,55 @@ const SolutionSteps = () => {
             Submit Feedback
           </Button>
         </CardBody>
+      </Card><br/>
+        <Card>
+        <CardBody>
+          <CardTitle tag="h5">Submit rating for Expert</CardTitle>
+
+          <FormGroup>
+            <Label>Did you like the Expert?</Label><br />
+            <Button
+              color={liked === true ? 'success' : 'secondary'}
+              className="me-2"
+              onClick={() => setLiked(true)}
+            >
+              👍 Like
+            </Button>
+            <Button
+              color={liked === false ? 'danger' : 'secondary'}
+              onClick={() => setLiked(false)}
+            >
+              👎 Dislike
+            </Button>
+          </FormGroup>
+
+          <FormGroup className="mt-3">
+            <Label>Rating (1-5)</Label>
+            <Input
+              type="number"
+              min="1"
+              max="5"
+              value={rating}
+              onChange={e => setRating(parseInt(e.target.value))}
+            />
+          </FormGroup>
+
+          <FormGroup className="mt-3">
+            <Label>Feedback</Label>
+            <Input
+              type="textarea"
+              value={feedback}
+              onChange={e => setFeedback(e.target.value)}
+              placeholder="Write your thoughts..."
+            />
+          </FormGroup>
+
+          <Button color="primary" className="mt-3" onClick={handleSubmitFeedback}>
+            Submit rating
+          </Button>
+        </CardBody>
       </Card>
+
     </Container>
   );
 };

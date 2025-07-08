@@ -53,7 +53,8 @@ const ProblemSolutions = () => {
 
       <Card>
         <CardBody>
-          <CardTitle tag="h5">Solution List</CardTitle>
+          <CardTitle tag="h5">Solution List
+          </CardTitle>
           {solutions.length > 0 ? (
             <ListGroup className="mt-3">
               {solutions.map((solution) => (
@@ -66,7 +67,9 @@ const ProblemSolutions = () => {
                   className="d-flex flex-column"
                 >
                   <strong>{solution.title}</strong>
+                  
                   <span className="text-muted">{solution.description}</span>
+                   <span className="text-muted">Expert id {solution.expert_id}</span>
 
                   {/* Feedback summary */}
                   <div className="mt-2 d-flex align-items-center gap-3">

@@ -11,7 +11,7 @@ const ExpertDashboard = () => {
 
   useEffect(() => {
     axios
-      .get('/api/cars/list', { headers: authHeader() })
+      .get('/api/cars/assigned', { headers: authHeader() })
       .then((res) => setCars(res.data.data))
       .catch((err) => console.error(err));
   }, []);
